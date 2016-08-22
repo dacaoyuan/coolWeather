@@ -128,6 +128,7 @@ public class ChooseAreaActivity extends AppCompatActivity {
             dataList.clear();
             for (City city : cityList) {
                 dataList.add(city.getCityName());
+                System.out.println(city.getCityName());
             }
             adapter.notifyDataSetChanged();
             listView.setSelection(0);
@@ -144,10 +145,13 @@ public class ChooseAreaActivity extends AppCompatActivity {
     private void queryCounties() {
         countyList = coolWeatherDB.loadCounties(selectedCity.getId());
         if (countyList.size() > 0) {
-            countyList.clear();
+            System.out.println("ChooseAreaActivity.queryCounties=" + countyList.size());
+            dataList.clear();
             for (County county : countyList) {
                 dataList.add(county.getCountyName());
+                System.out.println(county.getCountyName());
             }
+            System.out.println("ChooseAreaActivity.queryCounties=" + countyList);
             adapter.notifyDataSetChanged();
             listView.setSelection(0);
             titleText.setText(selectedCity.getCityName());

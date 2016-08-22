@@ -47,8 +47,8 @@ public class Utility {
         if (!TextUtils.isEmpty(response)) {
             String[] allCities = response.split(",");
             if (allCities != null && allCities.length > 0) {
-                for (String p : allCities) {
-                    String[] array = p.split("\\|");
+                for (String c : allCities) {
+                    String[] array = c.split("\\|");
                     City city = new City();
                     city.setCityCode(array[0]);
                     city.setCityName(array[1]);
@@ -73,8 +73,8 @@ public class Utility {
         if (!TextUtils.isEmpty(response)) {
             String[] allCounties = response.split(",");
             if (allCounties != null && allCounties.length > 0) {
-                for (String p : allCounties) {
-                    String[] array = p.split("\\|");
+                for (String c : allCounties) {
+                    String[] array = c.split("\\|");
                     County county = new County();
                     county.setCountyCode(array[0]);
                     county.setCountyName(array[1]);
