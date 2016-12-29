@@ -1,24 +1,37 @@
 package com.coolweather.app.activity;
 
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
 import android.view.Window;
+import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.coolweather.app.R;
 import com.coolweather.app.util.HttpCallBackListener;
 import com.coolweather.app.util.HttpUtil;
 import com.coolweather.app.util.Utility;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+import org.xutils.common.Callback;
+import org.xutils.http.RequestParams;
+import org.xutils.x;
+
 /**
  * Created by abc on 2016/8/24.
  */
-public class WeatherActivity extends AppCompatActivity {
+public class WeatherActivity extends AppCompatActivity implements View.OnClickListener {
+    private static final String TAG = "WeatherActivity";
 
     private LinearLayout weatherInfoLayout;
 
@@ -35,10 +48,12 @@ public class WeatherActivity extends AppCompatActivity {
     private TextView currentDateText;
 
 
+    private Button btnSwithch, btnRefresh;
+
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.weather_layout);
 
         weatherInfoLayout = (LinearLayout) findViewById(R.id.weather_info_layout);
@@ -49,15 +64,23 @@ public class WeatherActivity extends AppCompatActivity {
         temp2Text = (TextView) findViewById(R.id.temp2);
         currentDateText = (TextView) findViewById(R.id.current_date);
 
+        btnSwithch = (Button) findViewById(R.id.switch_city);
+        btnRefresh = (Button) findViewById(R.id.refresh);
+        btnSwithch.setOnClickListener(this);
+        btnRefresh.setOnClickListener(this);
+
         String countyCode = getIntent().getStringExtra("county_code");
         System.out.println("countyCode=" + countyCode);
+
+        String countyName = getIntent().getStringExtra("county_name");
+        System.out.println("countyName=" + countyName);
 
         if (!TextUtils.isEmpty(countyCode)) {
             //有县级代号就去查询天气
             publishText.setText("同步中...");
             weatherInfoLayout.setVisibility(View.INVISIBLE);
             cityNameText.setVisibility(View.INVISIBLE);
-            queryWeatherCode(countyCode);
+            queryWeatherCode(countyName);
         }
 
 
@@ -66,11 +89,15 @@ public class WeatherActivity extends AppCompatActivity {
     /**
      * 查询县级代号所对应的天气代号
      *
-     * @param countyCode
+     * @param countyName
      */
-    private void queryWeatherCode(String countyCode) {
-        String address = "http://www.weather.com.cn/data/list3/city" + countyCode + ".xml";
-        queryFromServer(address, "countyCode");
+    private void queryWeatherCode(String countyName) {
+        String address = "https://free-api.heweather.com/v5/now?city=" + countyName + "&key=96a56f2a3c144e06a9c5d038249a9337";
+
+        System.out.println("address=" + address);
+        //String address = "http://www.weather.com.cn/data/list3/city" + countyCode + ".xml";
+        // queryFromServer(address, "countyCode");
+        getFromServer(address);
     }
 
     /**
@@ -79,11 +106,59 @@ public class WeatherActivity extends AppCompatActivity {
      * @param weatherCode
      */
     private void queryWeatherInfo(String weatherCode) {
-        //String address = "http://www.weather.com.cn/data/cityinfo/" + weatherCode + ".html";
-        String address = "http://www.weather.com.cn/data/cityinfo/101110101.html";
+        String address = "http://www.weather.com.cn/data/cityinfo/" + weatherCode + ".html";
+        //queryFromServer(address, weatherCode);
 
-        queryFromServer(address, "101110101");
     }
+
+    private void getFromServer(String address) {
+        RequestParams params = new RequestParams(address);
+        // params.addQueryStringParameter("", "");
+        x.http().get(params, new Callback.CommonCallback<String>() {
+            @Override
+            public void onSuccess(String result) {
+                JSONObject jsonObject = null;
+                try {
+                    jsonObject = new JSONObject(result);
+                    JSONArray weatherInfo = jsonObject.getJSONArray("HeWeather5");
+                    String status = weatherInfo.getJSONObject(0).optString("status");
+                    if (status.equals("ok")) {
+                        Utility.handleWeatherResponse(WeatherActivity.this, result);
+                        showWeather();
+                    } else {
+                        Log.i(TAG, "onSuccess: result=" + result);
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
+               /* runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        showWeather();
+                    }
+                });*/
+
+            }
+
+            @Override
+            public void onError(Throwable ex, boolean isOnCallback) {
+                Toast.makeText(x.app(), ex.getMessage(), Toast.LENGTH_LONG).show();
+                Log.i(TAG, "onError: ");
+            }
+
+            @Override
+            public void onCancelled(CancelledException cex) {
+                System.out.println("WeatherActivity.onCancelled");
+            }
+
+            @Override
+            public void onFinished() {
+
+            }
+        });
+    }
+
 
     /**
      * 根据传入的地址和类型去向服务器查询天气代号或者天气信息
@@ -142,6 +217,31 @@ public class WeatherActivity extends AppCompatActivity {
 
         weatherInfoLayout.setVisibility(View.VISIBLE);
         cityNameText.setVisibility(View.VISIBLE);
+
+    }
+
+    @Override
+    public void onClick(View v) {
+        switch (v.getId()) {
+            case R.id.switch_city:
+                Intent intent = new Intent(this, ChooseAreaActivity.class);
+                intent.putExtra("from_weather_activity", true);
+                startActivity(intent);
+                finish();
+
+                break;
+            case R.id.refresh:
+
+                publishText.setText("刷新中，，，");
+                SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
+                String cityName = preferences.getString("city_name", "");
+                if (!TextUtils.isEmpty(cityName)) {
+                    queryWeatherCode(cityName);
+                }
+                break;
+            default:
+                break;
+        }
 
     }
 }

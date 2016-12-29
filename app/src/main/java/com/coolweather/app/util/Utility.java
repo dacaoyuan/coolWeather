@@ -9,7 +9,10 @@ import com.coolweather.app.model.City;
 import com.coolweather.app.model.CoolWeatherDB;
 import com.coolweather.app.model.County;
 import com.coolweather.app.model.Province;
+import com.coolweather.app.model.Weather;
+import com.google.gson.Gson;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -105,7 +108,31 @@ public class Utility {
      * @param response
      */
     public static void handleWeatherResponse(Context context, String response) {
-        try {
+        Gson gson = new Gson();
+        Weather weather = gson.fromJson(response, Weather.class);
+        String cityName = weather.getHeWeather5().get(0).getBasic().getCity();
+        String weatherCode = weather.getHeWeather5().get(0).getNow().getCond().getCode();
+        String weatherDesp = weather.getHeWeather5().get(0).getNow().getCond().getTxt();
+        String publishTime2 = weather.getHeWeather5().get(0).getBasic().getUpdate().getLoc();
+        String publishTime = publishTime2.substring(11);
+        String temp2 = weather.getHeWeather5().get(0).getNow().getTmp();
+        saveWeatherInfo(context, cityName, weatherCode, "暂无", temp2, weatherDesp, publishTime);
+       /* try {
+            JSONObject jsonObject = new JSONObject(response);
+            JSONArray weatherInfo = jsonObject.getJSONArray("HeWeather5");
+            String status = weatherInfo.getJSONObject(0).optString("status");
+            JSONObject now = weatherInfo.getJSONObject(0).optJSONObject("now");
+            String temp1 = now.optString("tmp");
+            String temp2 = now.optString("vis");
+            JSONObject cond = now.optJSONObject("cond");
+            String weatherCode = cond.getString("code");
+            System.out.println(status + " " + temp1 + "  " + weatherCode);
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }*/
+
+        /*try {
             JSONObject jsonObject = new JSONObject(response);
             JSONObject weatherInfo = jsonObject.getJSONObject("weatherinfo");
             String cityName = weatherInfo.getString("cityid");
@@ -118,7 +145,7 @@ public class Utility {
 
         } catch (JSONException e) {
             e.printStackTrace();
-        }
+        }*/
     }
 
     /**
