@@ -1,7 +1,6 @@
 package com.coolweather.app.activity;
 
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -9,8 +8,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
-import android.view.Window;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -58,6 +57,7 @@ public class WeatherActivity extends AppCompatActivity implements View.OnClickLi
     private PtrFrameLayout mPtrFrame;
     private String countyName;
     private String cityName2;
+    private ImageView image;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -77,6 +77,10 @@ public class WeatherActivity extends AppCompatActivity implements View.OnClickLi
         btnRefresh = (Button) findViewById(R.id.refresh);
         btnSwithch.setOnClickListener(this);
         btnRefresh.setOnClickListener(this);
+
+        image=(ImageView)findViewById(R.id.tianqi_pic);
+
+
 
         String countyCode = getIntent().getStringExtra("county_code");
         System.out.println("countyCode=" + countyCode);
@@ -107,6 +111,7 @@ public class WeatherActivity extends AppCompatActivity implements View.OnClickLi
             @Override
             public boolean checkCanDoRefresh(PtrFrameLayout frame, View content, View header) {
                 System.out.println("WeatherActivity.checkCanDoRefresh");
+                publishText.setText("同步中...");
                 return true;
             }
 
@@ -117,13 +122,12 @@ public class WeatherActivity extends AppCompatActivity implements View.OnClickLi
                     public void run() {
                         mPtrFrame.refreshComplete();
                         System.out.println("onRefreshBegin countyName=" + countyName);
+
                         queryWeatherCode(countyName);
                     }
                 }, 500);
             }
         });
-
-
 
 
     }
@@ -166,8 +170,12 @@ public class WeatherActivity extends AppCompatActivity implements View.OnClickLi
                     JSONArray weatherInfo = jsonObject.getJSONArray("HeWeather5");
                     String status = weatherInfo.getJSONObject(0).optString("status");
                     if (status.equals("ok")) {
-                        Utility.handleWeatherResponse(WeatherActivity.this, result);
+                        Utility.handleWeatherResponse(WeatherActivity.this, result,image);
                         showWeather();
+
+
+
+
                     } else {
                         Log.i(TAG, "onSuccess: result=" + result);
                     }
@@ -217,7 +225,7 @@ public class WeatherActivity extends AppCompatActivity implements View.OnClickLi
                     }
                 } else if ("weatherCode".equals(type)) {
                     //处理服务器返回的天气信息
-                    Utility.handleWeatherResponse(WeatherActivity.this, response);
+                    Utility.handleWeatherResponse(WeatherActivity.this, response, image);
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {

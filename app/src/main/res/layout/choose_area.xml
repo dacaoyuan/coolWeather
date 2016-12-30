@@ -1,14 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical">
 
-    <!--<RelativeLayout
+    <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="50dp"
-        android:background="#484E61"
+        android:background="?attr/colorPrimary"
         android:gravity="center">
 
         <TextView
@@ -21,41 +20,31 @@
             android:textColor="#fff"
             android:textSize="24sp" />
 
-    </RelativeLayout>-->
+    </RelativeLayout>
 
-    <android.support.design.widget.AppBarLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+    <!-- <android.support.design.widget.AppBarLayout
+         android:layout_width="match_parent"
+         android:layout_height="wrap_content">
 
-        <android.support.v7.widget.Toolbar
-            android:id="@+id/toolbar"
-            android:layout_width="match_parent"
-            android:layout_height="?android:attr/actionBarSize"
-            android:background="?attr/colorPrimary"
-            app:layout_scrollFlags="scroll|enterAlways">
+         <android.support.v7.widget.Toolbar
+             android:id="@+id/toolbar"
+             android:layout_width="match_parent"
+             android:layout_height="?android:attr/actionBarSize"
+             android:background="?attr/colorPrimary"
+             app:layout_scrollFlags="scroll|enterAlways">
 
-            <TextView
-                android:id="@+id/title_text"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_horizontal"
-                android:text="标题"
-                android:textColor="#fff"
-                android:textSize="24sp" />
+             <TextView
+                 android:id="@+id/title_text"
+                 android:layout_width="wrap_content"
+                 android:layout_height="wrap_content"
+                 android:layout_gravity="center_horizontal"
+                 android:text="标题"
+                 android:textColor="#fff"
+                 android:textSize="24sp" />
 
-        </android.support.v7.widget.Toolbar>
+         </android.support.v7.widget.Toolbar>
 
-    </android.support.design.widget.AppBarLayout>
-
-    <!--<android.support.v4.widget.NestedScrollView
-        android:id="@+id/ddd"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior">
-
-
-
-    </android.support.v4.widget.NestedScrollView>-->
+     </android.support.design.widget.AppBarLayout>-->
 
 
     <ListView
@@ -64,4 +53,4 @@
         android:layout_height="match_parent" />
 
 
-</android.support.design.widget.CoordinatorLayout>
+</LinearLayout>

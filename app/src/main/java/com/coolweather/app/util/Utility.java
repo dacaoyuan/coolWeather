@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.text.TextUtils;
+import android.widget.ImageView;
 
 import com.coolweather.app.model.City;
 import com.coolweather.app.model.CoolWeatherDB;
@@ -15,6 +16,7 @@ import com.google.gson.Gson;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.xutils.x;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -106,8 +108,9 @@ public class Utility {
      *
      * @param context
      * @param response
+     * @param image
      */
-    public static void handleWeatherResponse(Context context, String response) {
+    public static void handleWeatherResponse(Context context, String response, ImageView image) {
         Gson gson = new Gson();
         Weather weather = gson.fromJson(response, Weather.class);
         String cityName = weather.getHeWeather5().get(0).getBasic().getCity();
@@ -117,6 +120,12 @@ public class Utility {
         String publishTime = publishTime2.substring(11);
         String temp2 = weather.getHeWeather5().get(0).getNow().getTmp();
         saveWeatherInfo(context, cityName, weatherCode, "暂无", temp2, weatherDesp, publishTime);
+
+
+        if (weatherDesp != null && weatherDesp.equals("晴")) {
+            x.image().bind(image, "http://files.heweather.com/cond_icon/100.png");
+        }
+
        /* try {
             JSONObject jsonObject = new JSONObject(response);
             JSONArray weatherInfo = jsonObject.getJSONArray("HeWeather5");
