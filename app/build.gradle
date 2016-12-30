@@ -26,4 +26,5 @@ dependencies {
     compile 'org.xutils:xutils:3.3.40'
     compile 'com.android.support:design:25.0.0'
     compile 'com.google.code.gson:gson:2.2.4'
+    compile 'in.srain.cube:ultra-ptr:1.0.11'
 }

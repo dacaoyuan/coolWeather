@@ -27,6 +27,11 @@ import org.xutils.common.Callback;
 import org.xutils.http.RequestParams;
 import org.xutils.x;
 
+import in.srain.cube.views.ptr.PtrFrameLayout;
+import in.srain.cube.views.ptr.PtrHandler;
+import in.srain.cube.views.ptr.header.MaterialHeader;
+import in.srain.cube.views.ptr.util.PtrLocalDisplay;
+
 /**
  * Created by abc on 2016/8/24.
  */
@@ -50,11 +55,15 @@ public class WeatherActivity extends AppCompatActivity implements View.OnClickLi
 
     private Button btnSwithch, btnRefresh;
 
+    private PtrFrameLayout mPtrFrame;
+    private String countyName;
+    private String cityName2;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.weather_layout);
+        mPtrFrame = (PtrFrameLayout) findViewById(R.id.ptr);
 
         weatherInfoLayout = (LinearLayout) findViewById(R.id.weather_info_layout);
         cityNameText = (TextView) findViewById(R.id.city_name);
@@ -72,7 +81,7 @@ public class WeatherActivity extends AppCompatActivity implements View.OnClickLi
         String countyCode = getIntent().getStringExtra("county_code");
         System.out.println("countyCode=" + countyCode);
 
-        String countyName = getIntent().getStringExtra("county_name");
+        countyName = getIntent().getStringExtra("county_name");
         System.out.println("countyName=" + countyName);
 
         if (!TextUtils.isEmpty(countyCode)) {
@@ -80,8 +89,41 @@ public class WeatherActivity extends AppCompatActivity implements View.OnClickLi
             publishText.setText("同步中...");
             weatherInfoLayout.setVisibility(View.INVISIBLE);
             cityNameText.setVisibility(View.INVISIBLE);
-            queryWeatherCode(countyName);
+            //queryWeatherCode(countyName);
         }
+
+        MaterialHeader header = new MaterialHeader(this);
+        header.setPadding(0, PtrLocalDisplay.dp2px(15), 0, 0);
+        mPtrFrame.setHeaderView(header);
+        mPtrFrame.setPinContent(true);
+        mPtrFrame.addPtrUIHandler(header);
+        mPtrFrame.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                mPtrFrame.autoRefresh(true);//自动刷新
+            }
+        }, 100);
+        mPtrFrame.setPtrHandler(new PtrHandler() {
+            @Override
+            public boolean checkCanDoRefresh(PtrFrameLayout frame, View content, View header) {
+                System.out.println("WeatherActivity.checkCanDoRefresh");
+                return true;
+            }
+
+            @Override
+            public void onRefreshBegin(PtrFrameLayout frame) {
+                mPtrFrame.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        mPtrFrame.refreshComplete();
+                        System.out.println("onRefreshBegin countyName=" + countyName);
+                        queryWeatherCode(countyName);
+                    }
+                }, 500);
+            }
+        });
+
+
 
 
     }
@@ -92,12 +134,11 @@ public class WeatherActivity extends AppCompatActivity implements View.OnClickLi
      * @param countyName
      */
     private void queryWeatherCode(String countyName) {
-        String address = "https://free-api.heweather.com/v5/now?city=" + countyName + "&key=96a56f2a3c144e06a9c5d038249a9337";
-
+        String address = "https://free-api.heweather.com/v5/now";
         System.out.println("address=" + address);
         //String address = "http://www.weather.com.cn/data/list3/city" + countyCode + ".xml";
         // queryFromServer(address, "countyCode");
-        getFromServer(address);
+        getFromServer(address, countyName);
     }
 
     /**
@@ -111,9 +152,11 @@ public class WeatherActivity extends AppCompatActivity implements View.OnClickLi
 
     }
 
-    private void getFromServer(String address) {
+    private void getFromServer(String address, String cityName) {
         RequestParams params = new RequestParams(address);
-        // params.addQueryStringParameter("", "");
+        params.addQueryStringParameter("city", cityName);
+        params.addQueryStringParameter("key", "96a56f2a3c144e06a9c5d038249a9337");
+        System.out.println("params=" + params);
         x.http().get(params, new Callback.CommonCallback<String>() {
             @Override
             public void onSuccess(String result) {
@@ -131,13 +174,6 @@ public class WeatherActivity extends AppCompatActivity implements View.OnClickLi
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
-
-               /* runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        showWeather();
-                    }
-                });*/
 
             }
 
